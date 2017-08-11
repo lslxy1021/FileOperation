@@ -17,9 +17,10 @@ Three methods of file segmentation and merging in Java
  1. run fileoperation -> **FileGUI.java** to start the project.
  2.  You can change the method in FileGUI.java. **0** means **InputStream** and **OutputStream**,1 means **BufferedInputStream** and **BufferedOutputStream**,2 means **MappedByteBuffer**.
  
-
+```java  
         public static void main(String[] args) throws Exception {
           //new FileGUI(0);//IO
             new FileGUI(1);//BufferedIO
           //new FileGUI(2);//NIO
         }
+```
