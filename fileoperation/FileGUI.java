@@ -29,8 +29,8 @@ import io.Segment;
 import nio.NIOMerge;
 import nio.NIOSegment;
 
-public class FileGUI extends JFrame{
-	
+public class FileGUI extends JFrame {
+
 	private static final long serialVersionUID = 1L;
 	private JLabel addr;
 	private JTextField path;
@@ -46,40 +46,41 @@ public class FileGUI extends JFrame{
 	private JFileChooser filechooser;
 	private String suffix;
 	private File file;
+
 	public FileGUI(int type) {
 		setTitle("File Operation");
-		setSize(550,420);
+		setSize(550, 420);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		Dimension scrSize=Toolkit.getDefaultToolkit().getScreenSize(); //获取屏幕分辨率
+		Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize(); // 获取屏幕分辨率
 		int scrWidth = (int) scrSize.getWidth();
 		int scrHeight = (int) scrSize.getHeight();
-		setLocation((scrWidth - getWidth())/2, (scrHeight - getHeight())/2);
-		setResizable(false);	
+		setLocation((scrWidth - getWidth()) / 2, (scrHeight - getHeight()) / 2);
+		setResizable(false);
 		setLayout(new BorderLayout());
-		
+
 		addr = new JLabel("文件(路径): ");
 		path = new JTextField(20);
 		explorer = new JButton("浏览");
 		seperate = new JButton("分割");
 		combination = new JButton("合并");
 		numberInfo = new JLabel("请输入分割个数:");
-        number = new JTextField(5);
-        tips = new JLabel("(大于0且小于文件大小的正整数)");
+		number = new JTextField(5);
+		tips = new JLabel("(大于0且小于文件大小的正整数)");
 		info = new JTextArea();
 		size = new JLabel();
 		mainPanel = new JPanel();
-		
-		info.setLineWrap(true);//激活自动换行
-	
+
+		info.setLineWrap(true);// 激活自动换行
+
 		Font f = new Font("微软雅黑", Font.PLAIN, 15);
 		addr.setFont(f);
 		explorer.setFont(f);
 		seperate.setFont(f);
 		combination.setFont(f);
 		numberInfo.setFont(f);
-		
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("  HH:mm:ss");//设置时间格式,HH:24小时制，hh:12小时制
-    	
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("  HH:mm:ss");// 设置时间格式,HH:24小时制，hh:12小时制
+
 		explorer.addActionListener(new ActionListener() {
 
 			@Override
@@ -89,16 +90,16 @@ public class FileGUI extends JFrame{
 				try {
 					file = filechooser.getSelectedFile();
 					path.setText(file.getAbsolutePath());
-					suffix = file.getName().substring(file.getName().indexOf("."),file.getName().length());//后缀名
+					suffix = file.getName().substring(file.getName().indexOf("."), file.getName().length());// 后缀名
 				} catch (NullPointerException ex) {
 
 				}
 
 			}
-			
+
 		});
 		seperate.addActionListener(new ActionListener() {
-            
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (path.getText().length() != 0) { // 此处是空字符串，不是null
@@ -107,69 +108,70 @@ public class FileGUI extends JFrame{
 						String fDate = dateFormat.format(new Date());
 						info.append("文件不存在" + fDate + "\r\n");
 					} else {
-					 	
-				/*当事件派发线程（EDT）中正在执行的事件监听函数执行完毕，才能进行UI组件的刷新，
-				 * 因此将耗时的操作放在一个新的工作线程中执行。
-				 * SwingUtilities的invokeLater和invokeAndWait方法可以将一个可执行对象（Runnable）实例追加到EDT的可执行队列中。
-				 */
-					new Thread(new Runnable(){ 
 
-						@Override
-						public void run() {
-							suffix = file.getName().substring(file.getName().indexOf("."),file.getName().length());
-							try {	
-								int fileNumber = Integer.parseInt(number.getText());
-								SwingUtilities.invokeLater(new Runnable() {
+						/*
+						 * 当事件派发线程（EDT）中正在执行的事件监听函数执行完毕，才能进行UI组件的刷新，
+						 * 因此将耗时的操作放在一个新的工作线程中执行。
+						 * SwingUtilities的invokeLater和invokeAndWait方法可以将一个可执行对象（
+						 * Runnable）实例追加到EDT的可执行队列中。
+						 */
+						new Thread(new Runnable() {
 
-									@Override
-									public void run() {
-										String fDate = dateFormat.format(new Date());
-										info.append("文件开始分割......" + "   " + fDate + "\r\n");
-									}
-									
-								});
-								
-								if (fileNumber > 0 && fileNumber < file.length()) {
-									try {
-										if(type == 0) {
-										  Segment.fileSeperate(file, fileNumber, suffix);//非缓冲IO
-										}
-										else if(type == 1) {
-										  BSegment.fileSeperate(file, fileNumber, suffix);//缓冲IO
-										}
-										else {
-										  NIOSegment.fileSeperate(file, fileNumber, suffix);//MappedByteBuffer
-										}
-									} catch (Exception e1) {
-										e1.printStackTrace();
-									}
+							@Override
+							public void run() {
+								suffix = file.getName().substring(file.getName().indexOf("."), file.getName().length());
+								try {
+									int fileNumber = Integer.parseInt(number.getText());
 									SwingUtilities.invokeLater(new Runnable() {
 
 										@Override
 										public void run() {
 											String fDate = dateFormat.format(new Date());
-											info.append("文件分割完成" + "   " + fDate + "\r\n");
+											info.append("文件开始分割......" + "   " + fDate + "\r\n");
 										}
-										
-									});
-									
-								}
-							} catch (NumberFormatException n) {
-								SwingUtilities.invokeLater(new Runnable() {
 
-									@Override
-									public void run() {
-										String fDate = dateFormat.format(new Date());
-										info.append("请正确输入文件分割个数" + "   " + fDate + "\r\n");
+									});
+
+									if (fileNumber > 0 && fileNumber < file.length()) {
+										try {
+											if (type == 0) {
+												Segment.fileSeperate(file, fileNumber, suffix);// 非缓冲IO
+											} else if (type == 1) {
+												BSegment.fileSeperate(file, fileNumber, suffix);// 缓冲IO
+											} else {
+												NIOSegment.fileSeperate(file, fileNumber, suffix);// MappedByteBuffer
+											}
+										} catch (Exception e1) {
+											e1.printStackTrace();
+										}
+										SwingUtilities.invokeLater(new Runnable() {
+
+											@Override
+											public void run() {
+												String fDate = dateFormat.format(new Date());
+												info.append("文件分割完成" + "   " + fDate + "\r\n");
+											}
+
+										});
+
 									}
-									
-								});
-								
+								} catch (NumberFormatException n) {
+									SwingUtilities.invokeLater(new Runnable() {
+
+										@Override
+										public void run() {
+											String fDate = dateFormat.format(new Date());
+											info.append("请正确输入文件分割个数" + "   " + fDate + "\r\n");
+										}
+
+									});
+
+								}
 							}
-						}
-						
-					}).start();;
-				
+
+						}).start();
+						;
+
 					}
 
 				} else {
@@ -180,14 +182,14 @@ public class FileGUI extends JFrame{
 							String fDate = dateFormat.format(new Date());
 							info.append("请选择要分割的文件" + "  " + fDate + "\r\n");
 						}
-						
+
 					});
-					
+
 				}
 
 			}
 		});
-		
+
 		combination.addActionListener(new ActionListener() {
 
 			@Override
@@ -197,7 +199,7 @@ public class FileGUI extends JFrame{
 					@Override
 					public void run() {
 						if (path.getText().length() != 0) {
-							
+
 							if (path.getText().endsWith("txt")) {
 								SwingUtilities.invokeLater(new Runnable() {
 
@@ -206,24 +208,23 @@ public class FileGUI extends JFrame{
 										String fDate = dateFormat.format(new Date());
 										info.append("文件开始合并......" + "   " + fDate + "\r\n");
 									}
-									
+
 								});
-								
-								suffix = file.getName().substring(file.getName().indexOf("."),file.getName().length()-4);
+
+								suffix = file.getName().substring(file.getName().indexOf("."),
+										file.getName().length() - 4);
 								File parentFile = file.getParentFile();
 								String destPath = parentFile.toString() + "\\"
 										+ file.getName().substring(0, file.getName().indexOf(".")) + suffix;
 								try {
-									if(type == 0) {
-									   Merge.fileCombination(file, destPath);
+									if (type == 0) {
+										Merge.fileCombination(file, destPath);
+									} else if (type == 1) {
+										BMerge.fileCombination(file, destPath);
+									} else {
+										NIOMerge.fileCombination(file, destPath);
 									}
-									else if(type == 1) {
-									   BMerge.fileCombination(file, destPath);
-									}
-									else{
-									   NIOMerge.fileCombination(file,destPath);
-									}
-									
+
 								} catch (Exception e1) {
 									e1.printStackTrace();
 								}
@@ -234,11 +235,10 @@ public class FileGUI extends JFrame{
 										String fDate = dateFormat.format(new Date());
 										info.append("文件合并完成" + "   " + fDate + "\r\n");
 									}
-									
+
 								});
-								
-							}
-							else {
+
+							} else {
 								SwingUtilities.invokeLater(new Runnable() {
 
 									@Override
@@ -246,25 +246,24 @@ public class FileGUI extends JFrame{
 										String fDate = dateFormat.format(new Date());
 										info.append("请选择正确的txt文档" + "   " + fDate + "\r\n");
 									}
-									
+
 								});
-							
+
 							}
-						}
-						else {
+						} else {
 							String fDate = dateFormat.format(new Date());
-							SwingUtilities.invokeLater(()->info.append("请选择合并文件的txt文档" + "   " + fDate + "\r\n"));
-						
+							SwingUtilities.invokeLater(() -> info.append("请选择合并文件的txt文档" + "   " + fDate + "\r\n"));
+
 						}
 					}
-					
-				}).start();;
-		
+
+				}).start();
+				;
 
 			}
 		});
-		
-		number.addActionListener(new ActionListener(){
+
+		number.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -276,19 +275,18 @@ public class FileGUI extends JFrame{
 							fDate = dateFormat.format(new Date());
 							info.append("请正确选择文件" + "   " + fDate + "\r\n");
 						} else {
-							if (number.getText().matches("[0-9]+")) { 
+							if (number.getText().matches("[0-9]+")) {
 								int numFile = 0;
 								try {
 									numFile = Integer.parseInt(number.getText());
-								}
-								catch(NumberFormatException en) {
+								} catch (NumberFormatException en) {
 									info.append("请输入合理的分割个数\r\n");
 								}
 								if (numFile > file.length() || numFile == 0) {
 									info.append("请输入合理的分割个数\r\n");
-								}
-								else {long kBytes = (file.length() / numFile) / 1024;
-								size.setText("   " + String.valueOf(kBytes) + "KB");
+								} else {
+									long kBytes = (file.length() / numFile) / 1024;
+									size.setText("   " + String.valueOf(kBytes) + "KB");
 								}
 							} else {
 								fDate = dateFormat.format(new Date());
@@ -306,20 +304,16 @@ public class FileGUI extends JFrame{
 			}
 
 		});
-		
-		JPanel nPanel = new JPanel(),
-		       wPanel = new JPanel(),
-			   sPanel = new JPanel(),
-			   ePanel = new JPanel(),
-			   numPanel = new JPanel(),
-		       cPanel = new JPanel();
-		
+
+		JPanel nPanel = new JPanel(), wPanel = new JPanel(), sPanel = new JPanel(), ePanel = new JPanel(),
+				numPanel = new JPanel(), cPanel = new JPanel();
+
 		mainPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		numPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
-		cPanel.setLayout(new GridLayout(1,1));
-		nPanel.setLayout(new GridLayout(2,1));
-		
+
+		cPanel.setLayout(new GridLayout(1, 1));
+		nPanel.setLayout(new GridLayout(2, 1));
+
 		mainPanel.add(addr);
 		mainPanel.add(path);
 		mainPanel.add(explorer);
@@ -331,19 +325,20 @@ public class FileGUI extends JFrame{
 		numPanel.add(size);
 		nPanel.add(mainPanel);
 		nPanel.add(numPanel);
-		cPanel.add(new JScrollPane(info));//添加滚动条
-		add(nPanel,BorderLayout.NORTH);
-		add(cPanel,BorderLayout.CENTER);
-		add(wPanel,BorderLayout.WEST);
-		add(sPanel,BorderLayout.SOUTH);
-		add(ePanel,BorderLayout.EAST);
-		
+		cPanel.add(new JScrollPane(info));// 添加滚动条
+		add(nPanel, BorderLayout.NORTH);
+		add(cPanel, BorderLayout.CENTER);
+		add(wPanel, BorderLayout.WEST);
+		add(sPanel, BorderLayout.SOUTH);
+		add(ePanel, BorderLayout.EAST);
+
 		setVisible(true);
 	}
-    public static void main(String[] args) throws Exception {
-    	new FileGUI(0);//IO
-//    	new FileGUI(1);//BufferedIO
-//    	new FileGUI(2);//NIO
+
+	public static void main(String[] args) throws Exception {
+		new FileGUI(0);// IO
+		// new FileGUI(1);//BufferedIO
+		// new FileGUI(2);//NIO
 
 	}
 }
